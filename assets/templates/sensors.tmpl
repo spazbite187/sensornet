@@ -1,0 +1,51 @@
+{{ template "header" }}
+<div class="container">
+  <div class="card card-inverse" style="background-color: #373A3C; border-color: #373A3C;">
+      <h5 class="card-title">Sensors</h5>
+        <table class="table">
+          <tr>
+              <th><p class="card-text">ID</p></th>
+              <th><p class="card-text">Location</p></th>
+              <th><p class="card-text">Temp (F)</p></th>
+              <th><p class="card-text">WiFi (dBm)</p></th>
+              <th><p class="card-text">Uptime</p></th>
+              <th><p class="card-text">Last Updated</p></th>
+            </tr>
+            {{ range .sensors }}
+            <tr>
+              <td>
+                <p class="card-text">
+                <a href="/sensor/{{ .ID }}">{{ .ID }}</a>
+                </p>
+              </td>
+              <td>
+                <p class="card-text">
+                {{ .Location }}
+                </p>
+              </td>
+              <td>
+                <p class="card-text">
+                {{ .TempF }}
+                </p>
+              </td>
+              <td>
+                <p class="card-text">
+                {{ .Signal }}
+                </p>
+              </td>
+              <td>
+                <p class="card-text">
+                {{ .Uptime }}
+                </p>
+              </td>
+              <td>
+                <p class="card-text">
+                {{ .TimeSince }}
+                </p>
+              </td>
+              {{end}}
+            </tr>
+        </table>
+  </div>
+</div>
+{{ template "footer" }}

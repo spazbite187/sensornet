@@ -1,0 +1,22 @@
+{{ template "header" }}
+<div class="container">
+  <div class="card card-inverse" style="background-color: #373A3C; border-color: #373A3C;">
+      <h5 class="card-title">Sensor {{ .sensor.ID }} in {{ .sensor.Location }}</h5>
+        <p class="card-text">
+          Uptime: <b>{{ .sensor.Uptime }}</b>, Number of readings: <b>{{ .readings }}</b><br>
+          Last update: <b>{{ .sensor.LastUpdate }} (time since: {{ .sensor.TimeSince }})</b><br>
+          Current temp: <b>{{ .sensor.TempF }} F ({{ .sensor.TempC }} C)</b>, Average temp: <b>{{ .tempFavg }} F</b><br>
+          High temp: <b>{{ .highTemp.TempF }} F on {{ .highTemp.LastUpdate }}</b><br>
+          Low temp: <b>{{ .lowTemp.TempF }} F on {{ .lowTemp.LastUpdate }}</b><br>
+          <object data="/api/v1/sensor/{{ .sensor.ID }}/temp/graph" type="image/svg+xml">
+          </object><br>
+          SSID: <b>{{ .sensor.SSID }}</b>, Current signal: <b>{{ .sensor.Signal }} dBm</b>, 
+          Average signal: <b>{{ .signalAvg }} dBm</b>, IP: <b>{{ .sensor.IP }}</b><br>
+          High signal: <b>{{ .highSig.Signal }} dBm on {{ .highSig.LastUpdate }}</b><br>
+          Low signal: <b>{{ .lowSig.Signal }} dBm on {{ .lowSig.LastUpdate }}</b><br>
+          <object data="/api/v1/sensor/{{ .sensor.ID }}/signal/graph" type="image/svg+xml">
+          </object><br>
+        </p>
+  </div>
+</div>
+{{ template "footer" }}
