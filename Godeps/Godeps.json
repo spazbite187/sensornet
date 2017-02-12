@@ -1,0 +1,221 @@
+{
+	"ImportPath": "github.com/spazbite187/sensornet",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v79",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "bitbucket.org/zombiezen/gopdf/pdf",
+			"Comment": "go.weekly.2012-02-22-18",
+			"Rev": "1c63dc69751bc45441c2ce1f56b631c55294b4d5"
+		},
+		{
+			"ImportPath": "github.com/ajstarks/svgo",
+			"Comment": "go.weekly.2012-01-27-131-g9f597be",
+			"Rev": "9f597be83ea4fd9bbc17dfc950ced53b9dbc7f19"
+		},
+		{
+			"ImportPath": "github.com/asdine/storm",
+			"Comment": "v0.7.0",
+			"Rev": "c40e8d95426a80b23797ca9818ff2142a9401ddf"
+		},
+		{
+			"ImportPath": "github.com/asdine/storm/codec",
+			"Comment": "v0.7.0",
+			"Rev": "c40e8d95426a80b23797ca9818ff2142a9401ddf"
+		},
+		{
+			"ImportPath": "github.com/asdine/storm/codec/json",
+			"Comment": "v0.7.0",
+			"Rev": "c40e8d95426a80b23797ca9818ff2142a9401ddf"
+		},
+		{
+			"ImportPath": "github.com/asdine/storm/index",
+			"Comment": "v0.7.0",
+			"Rev": "c40e8d95426a80b23797ca9818ff2142a9401ddf"
+		},
+		{
+			"ImportPath": "github.com/asdine/storm/internal",
+			"Comment": "v0.7.0",
+			"Rev": "c40e8d95426a80b23797ca9818ff2142a9401ddf"
+		},
+		{
+			"ImportPath": "github.com/asdine/storm/q",
+			"Comment": "v0.7.0",
+			"Rev": "c40e8d95426a80b23797ca9818ff2142a9401ddf"
+		},
+		{
+			"ImportPath": "github.com/biogo/graphics/bezier",
+			"Rev": "ee9e4a4ad8d5c6c55688ec8da3f96f8bd3f09b85"
+		},
+		{
+			"ImportPath": "github.com/boltdb/bolt",
+			"Comment": "v1.3.0-58-ge9cf4fa",
+			"Rev": "e9cf4fae01b5a8ff89d0ec6b32f0d9c9f79aefdd"
+		},
+		{
+			"ImportPath": "github.com/emirpasic/gods/containers",
+			"Comment": "v1.6.0-2-gfc3e4a4",
+			"Rev": "fc3e4a43ff31b0accc20d750d64ea4b45ee61a5e"
+		},
+		{
+			"ImportPath": "github.com/emirpasic/gods/trees",
+			"Comment": "v1.6.0-2-gfc3e4a4",
+			"Rev": "fc3e4a43ff31b0accc20d750d64ea4b45ee61a5e"
+		},
+		{
+			"ImportPath": "github.com/emirpasic/gods/trees/redblacktree",
+			"Comment": "v1.6.0-2-gfc3e4a4",
+			"Rev": "fc3e4a43ff31b0accc20d750d64ea4b45ee61a5e"
+		},
+		{
+			"ImportPath": "github.com/emirpasic/gods/utils",
+			"Comment": "v1.6.0-2-gfc3e4a4",
+			"Rev": "fc3e4a43ff31b0accc20d750d64ea4b45ee61a5e"
+		},
+		{
+			"ImportPath": "github.com/gin-gonic/gin/binding",
+			"Comment": "v1.1.4",
+			"Rev": "e2212d40c62a98b388a5eb48ecbdcf88534688ba"
+		},
+		{
+			"ImportPath": "github.com/gin-gonic/gin/render",
+			"Comment": "v1.1.4",
+			"Rev": "e2212d40c62a98b388a5eb48ecbdcf88534688ba"
+		},
+		{
+			"ImportPath": "github.com/golang/freetype",
+			"Comment": "release-132-gd9be45a",
+			"Rev": "d9be45aaf7452cc30c0ceb1b1bf7efe1d17b7c87"
+		},
+		{
+			"ImportPath": "github.com/golang/freetype/raster",
+			"Comment": "release-132-gd9be45a",
+			"Rev": "d9be45aaf7452cc30c0ceb1b1bf7efe1d17b7c87"
+		},
+		{
+			"ImportPath": "github.com/golang/freetype/truetype",
+			"Comment": "release-132-gd9be45a",
+			"Rev": "d9be45aaf7452cc30c0ceb1b1bf7efe1d17b7c87"
+		},
+		{
+			"ImportPath": "github.com/golang/protobuf/proto",
+			"Rev": "8ee79997227bf9b34611aee7946ae64735e6fd93"
+		},
+		{
+			"ImportPath": "github.com/gonum/floats",
+			"Rev": "9fe75c11ab14e9efe0445ce5b96ac8fd552be30c"
+		},
+		{
+			"ImportPath": "github.com/gonum/internal/asm",
+			"Rev": "3065419bb46aefed1d66b0c951f2ef01da74fcbe"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/palette",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/plotter",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/vg",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/vg/draw",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/vg/fonts",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/vg/vgeps",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/vg/vgimg",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/vg/vgpdf",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/vg/vgsvg",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/llgcode/draw2d",
+			"Comment": "release-283-g1286d3b",
+			"Rev": "1286d3b2030ac9952e59c5ef29ef3cc24a8e83d5"
+		},
+		{
+			"ImportPath": "github.com/llgcode/draw2d/draw2dbase",
+			"Comment": "release-283-g1286d3b",
+			"Rev": "1286d3b2030ac9952e59c5ef29ef3cc24a8e83d5"
+		},
+		{
+			"ImportPath": "github.com/llgcode/draw2d/draw2dimg",
+			"Comment": "release-283-g1286d3b",
+			"Rev": "1286d3b2030ac9952e59c5ef29ef3cc24a8e83d5"
+		},
+		{
+			"ImportPath": "github.com/manucorporat/sse",
+			"Rev": "ee05b128a739a0fb76c7ebd3ae4810c1de808d6d"
+		},
+		{
+			"ImportPath": "golang.org/x/image/draw",
+			"Rev": "3ba119400e6fd98bf5100d1c17303c377b6521e9"
+		},
+		{
+			"ImportPath": "golang.org/x/image/font",
+			"Rev": "3ba119400e6fd98bf5100d1c17303c377b6521e9"
+		},
+		{
+			"ImportPath": "golang.org/x/image/math/f64",
+			"Rev": "3ba119400e6fd98bf5100d1c17303c377b6521e9"
+		},
+		{
+			"ImportPath": "golang.org/x/image/math/fixed",
+			"Rev": "3ba119400e6fd98bf5100d1c17303c377b6521e9"
+		},
+		{
+			"ImportPath": "golang.org/x/image/tiff",
+			"Rev": "3ba119400e6fd98bf5100d1c17303c377b6521e9"
+		},
+		{
+			"ImportPath": "golang.org/x/image/tiff/lzw",
+			"Rev": "3ba119400e6fd98bf5100d1c17303c377b6521e9"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "41bba8d80bbfab43231ffdf4c210037baae5f6a3"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "aaabbdc969c3935a2a7f61efac801e7163c73a2a"
+		},
+		{
+			"ImportPath": "gopkg.in/gin-gonic/gin.v1",
+			"Comment": "v1.0",
+			"Rev": "2dae550eb5392006a4582ce9c90016a9b5a74e8b"
+		},
+		{
+			"ImportPath": "gopkg.in/go-playground/validator.v8",
+			"Comment": "v8.18.1",
+			"Rev": "5f57d2222ad794d0dffb07e664ea05e2ee07d60c"
+		},
+		{
+			"ImportPath": "gopkg.in/yaml.v2",
+			"Rev": "4c78c975fe7c825c6d1466c42be594d1d6f3aba6"
+		}
+	]
+}
