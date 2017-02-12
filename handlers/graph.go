@@ -8,9 +8,6 @@ import (
 
 // GetTempGraph ...
 func (d *Data) GetTempGraph(c *gin.Context) {
-	htmlResp := make(map[string]interface{}) // html response map
-	defer d.Data.DebugLog.Printf("html resp data: %v", htmlResp)
-
 	var image []byte
 	for _, sensor := range d.Data.CachedSensors {
 		if sensor.ID == c.Param("sensorid") {
@@ -24,9 +21,6 @@ func (d *Data) GetTempGraph(c *gin.Context) {
 
 // GetSignalGraph ...
 func (d *Data) GetSignalGraph(c *gin.Context) {
-	htmlResp := make(map[string]interface{}) // html response map
-	defer d.Data.DebugLog.Printf("html resp data: %v", htmlResp)
-
 	var image []byte
 	for _, sensor := range d.Data.CachedSensors {
 		if sensor.ID == c.Param("sensorid") {

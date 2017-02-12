@@ -10,7 +10,6 @@ import (
 // GetIndex returns the index page of the app.
 func (d *Data) GetIndex(c *gin.Context) {
 	htmlResp := make(map[string]interface{})
-	defer d.Data.DebugLog.Printf("html resp data: %v", htmlResp)
 
 	c.HTML(http.StatusOK, "index.tmpl", htmlResp)
 }
@@ -18,7 +17,6 @@ func (d *Data) GetIndex(c *gin.Context) {
 // GetSensors returns the index page of the app.
 func (d *Data) GetSensors(c *gin.Context) {
 	htmlResp := make(map[string]interface{})
-	defer d.Data.DebugLog.Printf("html resp data: %v", htmlResp)
 
 	htmlResp["sensors"] = d.Data.CachedSensors
 	c.HTML(http.StatusOK, "sensors.tmpl", htmlResp)
@@ -27,7 +25,6 @@ func (d *Data) GetSensors(c *gin.Context) {
 // GetSensor ...
 func (d *Data) GetSensor(c *gin.Context) {
 	htmlResp := make(map[string]interface{})
-	defer d.Data.DebugLog.Printf("html resp data: %v", htmlResp)
 
 	sensor := &sensornet.Sensor{}
 	for _, v := range d.Data.CachedSensors {
