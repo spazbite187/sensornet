@@ -15,13 +15,6 @@ import (
 	"gopkg.in/gin-gonic/gin.v1"
 )
 
-const (
-	version         = "1.1.0-DEV"
-	dbFilename      = "sensornet.db"
-	maxNumReadings  = 10080 // 7 days worth if sensors measure every minute
-	bckgrndInterval = 60    // seconds
-)
-
 var (
 	appData *app.Data
 	router  *gin.Engine
@@ -30,7 +23,7 @@ var (
 
 func init() {
 	appData = &app.Data{
-		Version:       version,
+		Version:       sensornet.Version,
 		Log:           log.New(os.Stdout, "[SensorNet] ", log.LstdFlags),
 		ErrLog:        log.New(os.Stderr, "[SensorNet-error] ", log.LstdFlags|log.Llongfile),
 		DebugLog:      log.New(ioutil.Discard, "", 0),
@@ -69,7 +62,7 @@ func main() {
 	// hndlers is used for passing global data to the handlers
 	hndlers.Data = appData
 
-	db, err := storage.GetDatabase(dbFilename)
+	db, err := storage.GetDatabase(sensornet.DBFilename)
 	if err != nil {
 		eLog.Fatal(err)
 	}
@@ -110,7 +103,7 @@ func bckgrndServices(appData *app.Data) {
 				appData.ErrLog.Printf("updating sensors - %s", err.Error())
 			}
 			appData.DebugLog.Println("completed updating the sensor models")
-			time.Sleep(bckgrndInterval * time.Second)
+			time.Sleep(sensornet.BckgrndInterval * time.Second)
 		}
 	}()
 
@@ -118,13 +111,13 @@ func bckgrndServices(appData *app.Data) {
 	go func() {
 		// loop
 		for {
-			time.Sleep(bckgrndInterval * time.Second)
-			appData.DebugLog.Printf("removing sensor data over the max number (%d)...", maxNumReadings)
-			err := storage.CleanDB(maxNumReadings, appData.DB)
+			time.Sleep(sensornet.BckgrndInterval * time.Second)
+			appData.DebugLog.Printf("removing sensor data over the max number (%d)...", sensornet.MaxNumReadings)
+			err := storage.CleanDB(sensornet.MaxNumReadings, appData.DB)
 			if err != nil {
 				appData.ErrLog.Printf("cleaning up db - %s", err.Error())
 			}
-			appData.DebugLog.Printf("completed removing sensor data over the max number (%d)", maxNumReadings)
+			appData.DebugLog.Printf("completed removing sensor data over the max number (%d)", sensornet.MaxNumReadings)
 		}
 	}()
 
