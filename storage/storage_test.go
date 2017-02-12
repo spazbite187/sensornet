@@ -7,17 +7,25 @@ import (
 	"github.com/asdine/storm"
 
 	"github.com/spazbite187/sensornet"
+	"github.com/spazbite187/sensornet/app"
 	"github.com/spazbite187/sensornet/storage"
 )
 
 const testDBFilename = "sensornetTest.db"
 
 var (
-	testDB *storm.DB
+	testDB      *storm.DB
+	testAppData *app.Data
 )
 
 func init() {
 	testDB, _ = storage.GetDatabase(testDBFilename)
+	testAppData = &app.Data{
+		DIR:     "./",
+		Assets:  "./",
+		Version: "test",
+		DB:      testDB,
+	}
 }
 
 //
@@ -39,6 +47,11 @@ type getLatestSensorDataTestPair struct {
 
 type updateSensorLocationTestPair struct {
 	input  sensornet.Sensor
+	output string
+}
+
+type updateSensorsTestPair struct {
+	input  *app.Data
 	output string
 }
 
@@ -78,7 +91,7 @@ var (
 
 	testSensor03 = sensornet.Sensor{
 		ID:       "11111",
-		Location: "location03",
+		Location: "",
 	}
 
 	testSensor01Data01 = sensornet.SensorData{
@@ -207,8 +220,6 @@ var (
 		TimeSince:  "52s",
 	}
 
-	testSensors = []sensornet.Sensor{testSensor01}
-
 	storeSensorTests = []storeSensorTestPair{
 		{testSensor01, ""},
 		{testSensor02, ""},
@@ -240,12 +251,18 @@ var (
 		{testSensor03, ""},
 	}
 
+	updateSensorsTests = []updateSensorsTestPair{
+		{testAppData, ""},
+	}
+
 	cleanDBTests = []cleanDBTestPair{
 		{3, 3},
 		{2, 2},
 		{1, 1},
 		{0, 0},
 	}
+
+	testSensors = []*sensornet.Sensor{&testSensor01, &testSensor02, &testSensor03}
 )
 
 //
@@ -286,6 +303,19 @@ func TestGetLatestSensorData(t *testing.T) {
 func TestUpdateSensorLocation(t *testing.T) {
 	for _, pair := range updateSensorLocationTests {
 		v := storage.UpdateSensorLocation(&pair.input, testDB)
+		if v != nil {
+			t.Error("For", pair,
+				"expected", pair.output,
+				"got", v)
+		}
+	}
+}
+
+func TestUpdateSensors(t *testing.T) {
+	testAppData.CachedSensors = testSensors
+	for _, pair := range updateSensorsTests {
+		pair.input = testAppData
+		v := storage.UpdateSensors(pair.input)
 		if v != nil {
 			t.Error("For", pair,
 				"expected", pair.output,
