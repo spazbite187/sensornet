@@ -5,6 +5,7 @@ and used to produce SVG graphs, and html front end. JSON API end points are also
 # Get and Install
 ```
 $ go get -u github.com/spazbite187/sensornet
+$ go install github.com/spazbite187/sensornet/cmd/sensornet
 ```
 
 # Run
