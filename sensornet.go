@@ -8,7 +8,7 @@ import (
 // CalcTimeSince takes a timestamp as a string and returns the amount of
 // time since the timestamp as a string.
 func CalcTimeSince(input string) (string, error) {
-	updateTime, err := time.Parse(time.ANSIC, input)
+	updateTime, err := parseANSICTimeStr(input)
 	if err != nil {
 		return "", err
 	}
@@ -18,12 +18,21 @@ func CalcTimeSince(input string) (string, error) {
 
 // ToLocalTime ...
 func ToLocalTime(input string) (string, error) {
-	timeObj, err := time.Parse(time.ANSIC, input)
+	timeObj, err := parseANSICTimeStr(input)
 	if err != nil {
 		return "", err
 	}
 
 	return timeObj.Local().String(), nil
+}
+
+func parseANSICTimeStr(timeStr string) (time.Time, error) {
+	parsedTime, err := time.Parse(time.ANSIC, timeStr)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return parsedTime, nil
 }
 
 // TempCtoF ...

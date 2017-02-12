@@ -14,8 +14,13 @@ import (
 	"github.com/spazbite187/sensornet"
 )
 
+const (
+	xSize = 7
+	ySize = 3
+)
+
 // GetTempGraph ...
-func GetTempGraph(input []sensornet.SensorData) ([]byte, error) {
+func GetTempGraph(input []*sensornet.SensorData) ([]byte, error) {
 	// xticks defines how we convert and display time.Time values.
 	xticks := plot.TimeTicks{Format: "15:04\n2006-01-02"}
 	currentLocation := time.Now().Location()
@@ -51,8 +56,8 @@ func GetTempGraph(input []sensornet.SensorData) ([]byte, error) {
 	p.Add(line, points)
 
 	// Save to []byte section
-	c := vgsvg.New(7.5*vg.Inch, 3*vg.Inch) // Create a Canvas for writing SVG images.
-	p.Draw(draw.New(c))                    // Draw to the Canvas.
+	c := vgsvg.New(xSize*vg.Inch, ySize*vg.Inch) // Create a Canvas for writing SVG images.
+	p.Draw(draw.New(c))                          // Draw to the Canvas.
 	image, err := getSVGBytes(c)
 	if err != nil {
 		return []byte{}, nil
@@ -62,7 +67,7 @@ func GetTempGraph(input []sensornet.SensorData) ([]byte, error) {
 }
 
 // GetSignalGraph ...
-func GetSignalGraph(input []sensornet.SensorData) ([]byte, error) {
+func GetSignalGraph(input []*sensornet.SensorData) ([]byte, error) {
 	// xticks defines how we convert and display time.Time values.
 	xticks := plot.TimeTicks{Format: "15:04\n2006-01-02"}
 	currentLocation := time.Now().Location()
@@ -97,8 +102,8 @@ func GetSignalGraph(input []sensornet.SensorData) ([]byte, error) {
 	p.Add(line, points)
 
 	// Save to []byte section
-	c := vgsvg.New(7.5*vg.Inch, 3*vg.Inch) // Create a Canvas for writing SVG images.
-	p.Draw(draw.New(c))                    // Draw to the Canvas.
+	c := vgsvg.New(xSize*vg.Inch, ySize*vg.Inch) // Create a Canvas for writing SVG images.
+	p.Draw(draw.New(c))                          // Draw to the Canvas.
 	image, err := getSVGBytes(c)
 	if err != nil {
 		return []byte{}, nil
@@ -108,7 +113,7 @@ func GetSignalGraph(input []sensornet.SensorData) ([]byte, error) {
 }
 
 // tempPoints returns x, y points based on SensorData.
-func tempPoints(data []sensornet.SensorData) (plotter.XYs, error) {
+func tempPoints(data []*sensornet.SensorData) (plotter.XYs, error) {
 	pts := make(plotter.XYs, len(data))
 	for k, v := range data {
 		lastUpdate, err := time.Parse(time.ANSIC, v.LastUpdate)
@@ -125,7 +130,7 @@ func tempPoints(data []sensornet.SensorData) (plotter.XYs, error) {
 }
 
 // signalPoints returns x, y points based on SensorData.
-func signalPoints(data []sensornet.SensorData) (plotter.XYs, error) {
+func signalPoints(data []*sensornet.SensorData) (plotter.XYs, error) {
 	pts := make(plotter.XYs, len(data))
 	for k, v := range data {
 		lastUpdate, err := time.Parse(time.ANSIC, v.LastUpdate)

@@ -3,28 +3,19 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/spazbite187/sensornet/graphs"
-	"github.com/spazbite187/sensornet/storage"
 	"gopkg.in/gin-gonic/gin.v1"
 )
 
 // GetTempGraph ...
 func (d *Data) GetTempGraph(c *gin.Context) {
 	htmlResp := make(map[string]interface{}) // html response map
-	defer d.Data.DbugLog.Printf("html resp data: %v", htmlResp)
+	defer d.Data.DebugLog.Printf("html resp data: %v", htmlResp)
 
-	sensors, err := storage.GetAllSensorData(c.Param("sensorid"), d.Data.DB)
-	if err != nil {
-		d.Data.ErrLog.Printf("getting data: %s", err.Error())
-		c.HTML(http.StatusInternalServerError, "err.tmpl", htmlResp)
-		return
-	}
-
-	image, err := graphs.GetTempGraph(sensors)
-	if err != nil {
-		d.Data.ErrLog.Printf("getting graph: %s", err.Error())
-		c.HTML(http.StatusInternalServerError, "err.tmpl", htmlResp)
-		return
+	var image []byte
+	for _, sensor := range d.Data.CachedSensors {
+		if sensor.ID == c.Param("sensorid") {
+			image = sensor.TempGraph
+		}
 	}
 
 	c.Header("Content-Type", "image/svg+xml")
@@ -34,20 +25,13 @@ func (d *Data) GetTempGraph(c *gin.Context) {
 // GetSignalGraph ...
 func (d *Data) GetSignalGraph(c *gin.Context) {
 	htmlResp := make(map[string]interface{}) // html response map
-	defer d.Data.DbugLog.Printf("html resp data: %v", htmlResp)
+	defer d.Data.DebugLog.Printf("html resp data: %v", htmlResp)
 
-	sensors, err := storage.GetAllSensorData(c.Param("sensorid"), d.Data.DB)
-	if err != nil {
-		d.Data.ErrLog.Printf("getting data: %s", err.Error())
-		c.HTML(http.StatusInternalServerError, "err.tmpl", htmlResp)
-		return
-	}
-
-	image, err := graphs.GetSignalGraph(sensors)
-	if err != nil {
-		d.Data.ErrLog.Printf("getting graph: %s", err.Error())
-		c.HTML(http.StatusInternalServerError, "err.tmpl", htmlResp)
-		return
+	var image []byte
+	for _, sensor := range d.Data.CachedSensors {
+		if sensor.ID == c.Param("sensorid") {
+			image = sensor.SignalGraph
+		}
 	}
 
 	c.Header("Content-Type", "image/svg+xml")
