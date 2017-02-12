@@ -9,7 +9,7 @@
               <th><p class="card-text">Temp (F)</p></th>
               <th><p class="card-text">WiFi (dBm)</p></th>
               <th><p class="card-text">Uptime</p></th>
-              <th><p class="card-text">Last Updated</p></th>
+              <th><p class="card-text">Last Update</p></th>
             </tr>
             {{ range .sensors }}
             <tr>
@@ -40,7 +40,7 @@
               </td>
               <td>
                 <p class="card-text">
-                {{ .TimeSince }}
+                {{ .LastUpdate }}
                 </p>
               </td>
               {{end}}

@@ -4,6 +4,8 @@ import (
 	"github.com/asdine/storm"
 	"github.com/asdine/storm/q"
 	"github.com/spazbite187/sensornet"
+	"github.com/spazbite187/sensornet/app"
+	"github.com/spazbite187/sensornet/graphs"
 )
 
 // GetDatabase ...
@@ -27,19 +29,105 @@ func StoreSensor(sensor *sensornet.Sensor, db *storm.DB) error {
 	return nil
 }
 
-// UpdateSensorLocation ...
-func UpdateSensorLocation(sensor *sensornet.Sensor, db *storm.DB) error {
-	// update sensor
-	err := db.UpdateField(&sensornet.Sensor{ID: sensor.ID}, "Location", sensor.Location)
+// UpdateSensors ...
+func UpdateSensors(appData *app.Data) error {
+
+	// get sensor models from db
+	sensors, err := getSensors(appData.DB)
 	if err != nil {
 		return err
 	}
 
+	// update sensor models
+	for i, v := range sensors {
+		sensor, err := GetSensorData(v.ID, appData.DB)
+		if err != nil {
+			return err
+		}
+		allSensorData, err := getAllSensorData(sensor.ID, appData.DB)
+		if err != nil {
+			return err
+		}
+
+		if sensors[i].Location == "" || sensors[i].Location == "NEW" {
+			sensors[i].Location = sensor.Location
+		}
+		sensors[i].Uptime = sensor.Uptime
+		sensors[i].IP = sensor.IP
+		sensors[i].SSID = sensor.SSID
+		sensors[i].Signal = sensor.Signal
+		sensors[i].NumReadings, err = getNumReads(v.ID, appData.DB)
+		if err != nil {
+			return err
+		}
+		sensors[i].TempC = sensor.TempC
+		sensors[i].TempF = sensor.TempF
+		sensors[i].HighTemp, err = getHighTemp(v.ID, appData.DB)
+		if err != nil {
+			return err
+		}
+		sensors[i].HighTemp.LastUpdate, err = sensornet.ToLocalTime(sensors[i].HighTemp.LastUpdate)
+		if err != nil {
+			return err
+		}
+		sensors[i].LowTemp, err = getLowTemp(v.ID, appData.DB)
+		if err != nil {
+			return err
+		}
+		sensors[i].LowTemp.LastUpdate, err = sensornet.ToLocalTime(sensors[i].LowTemp.LastUpdate)
+		if err != nil {
+			return err
+		}
+		sensors[i].AvgTemp, err = getTempFAvg(v.ID, appData.DB)
+		if err != nil {
+			return err
+		}
+		sensors[i].TempGraph, err = graphs.GetTempGraph(allSensorData)
+		if err != nil {
+			return err
+		}
+
+		sensors[i].Signal = sensor.Signal
+		sensors[i].HighSignal, err = getHighSignal(v.ID, appData.DB)
+		if err != nil {
+			return err
+		}
+		sensors[i].HighSignal.LastUpdate, err = sensornet.ToLocalTime(sensors[i].HighSignal.LastUpdate)
+		if err != nil {
+			return err
+		}
+		sensors[i].LowSignal, err = getLowSignal(v.ID, appData.DB)
+		if err != nil {
+			return err
+		}
+		sensors[i].LowSignal.LastUpdate, err = sensornet.ToLocalTime(sensors[i].LowSignal.LastUpdate)
+		if err != nil {
+			return err
+		}
+		sensors[i].AvgSignal, err = getSignalAvg(v.ID, appData.DB)
+		if err != nil {
+			return err
+		}
+		sensors[i].SignalGraph, err = graphs.GetSignalGraph(allSensorData)
+		if err != nil {
+			return err
+		}
+		sensors[i].LastUpdate, err = sensornet.ToLocalTime(sensor.LastUpdate)
+		if err != nil {
+			return err
+		}
+	}
+
+	// update sensors in global memory cache
+	appData.CachedSensors = sensors
+
 	return nil
 }
 
-func updateSensorNumReadings(sensor *sensornet.Sensor, db *storm.DB) error {
-	err := db.UpdateField(&sensornet.Sensor{ID: sensor.ID}, "NumReadings", sensor.NumReadings)
+// UpdateSensorLocation ...
+func UpdateSensorLocation(sensor *sensornet.Sensor, db *storm.DB) error {
+	// update sensor
+	err := db.UpdateField(&sensornet.Sensor{ID: sensor.ID}, "Location", sensor.Location)
 	if err != nil {
 		return err
 	}
@@ -58,18 +146,6 @@ func StoreSensorData(data *sensornet.SensorData, db *storm.DB) error {
 	return nil
 }
 
-// GetSensor ...
-func GetSensor(ID string, db *storm.DB) (sensornet.Sensor, error) {
-	var sensor sensornet.Sensor
-
-	err := db.One("ID", ID, &sensor)
-	if err != nil {
-		return sensor, err
-	}
-
-	return sensor, nil
-}
-
 // GetSensorData ...
 func GetSensorData(ID string, db *storm.DB) (sensornet.SensorData, error) {
 	var sensorData []sensornet.SensorData
@@ -81,9 +157,9 @@ func GetSensorData(ID string, db *storm.DB) (sensornet.SensorData, error) {
 	return sensorData[0], nil
 }
 
-// GetAllSensorData ...
-func GetAllSensorData(ID string, db *storm.DB) ([]sensornet.SensorData, error) {
-	var sensorData []sensornet.SensorData
+// getAllSensorData ...
+func getAllSensorData(ID string, db *storm.DB) ([]*sensornet.SensorData, error) {
+	var sensorData []*sensornet.SensorData
 	err := db.Find("ID", ID, &sensorData, storm.Reverse())
 	if err != nil {
 		return sensorData, err
@@ -92,20 +168,9 @@ func GetAllSensorData(ID string, db *storm.DB) ([]sensornet.SensorData, error) {
 	return sensorData, nil
 }
 
-// GetLimitedSensorData ...
-func GetLimitedSensorData(ID string, db *storm.DB) ([]sensornet.SensorData, error) {
-	var sensorData []sensornet.SensorData
-	err := db.Find("ID", ID, &sensorData, storm.Limit(5000), storm.Reverse())
-	if err != nil {
-		return sensorData, err
-	}
-
-	return sensorData, nil
-}
-
-// GetSensors ...
-func GetSensors(db *storm.DB) ([]sensornet.Sensor, error) {
-	var sensors []sensornet.Sensor
+// getSensors ...
+func getSensors(db *storm.DB) ([]*sensornet.Sensor, error) {
+	var sensors []*sensornet.Sensor
 
 	err := db.All(&sensors)
 	if err != nil {
@@ -115,12 +180,12 @@ func GetSensors(db *storm.DB) ([]sensornet.Sensor, error) {
 	return sensors, nil
 }
 
-// GetTempFAvg ...
-func GetTempFAvg(ID string, db *storm.DB) (float64, error) {
+// getTempFAvg ...
+func getTempFAvg(ID string, db *storm.DB) (float64, error) {
 	var total float64
 	var count float64
 
-	data, err := GetAllSensorData(ID, db)
+	data, err := getAllSensorData(ID, db)
 	if err != nil {
 		return 0, nil
 	}
@@ -133,12 +198,12 @@ func GetTempFAvg(ID string, db *storm.DB) (float64, error) {
 	return avg, nil
 }
 
-// GetSignalAvg ...
-func GetSignalAvg(ID string, db *storm.DB) (float64, error) {
+// getSignalAvg ...
+func getSignalAvg(ID string, db *storm.DB) (float64, error) {
 	var total float64
 	var count float64
 
-	data, err := GetAllSensorData(ID, db)
+	data, err := getAllSensorData(ID, db)
 	if err != nil {
 		return 0, nil
 	}
@@ -151,9 +216,8 @@ func GetSignalAvg(ID string, db *storm.DB) (float64, error) {
 	return avg, nil
 }
 
-// GetHighTemp ...
-// TODO: Fix issues with going from postive numbers to negative numbers
-func GetHighTemp(ID string, db *storm.DB) (sensornet.SensorData, error) {
+// getHighTemp ...
+func getHighTemp(ID string, db *storm.DB) (sensornet.SensorData, error) {
 	sensorData, err := getHighest("TempF", ID, db)
 	if err != nil {
 		return sensorData, err
@@ -162,8 +226,8 @@ func GetHighTemp(ID string, db *storm.DB) (sensornet.SensorData, error) {
 	return sensorData, nil
 }
 
-// GetLowTemp ...
-func GetLowTemp(ID string, db *storm.DB) (sensornet.SensorData, error) {
+// getLowTemp ...
+func getLowTemp(ID string, db *storm.DB) (sensornet.SensorData, error) {
 	sensorData, err := getLowest("TempF", ID, db)
 	if err != nil {
 		return sensorData, err
@@ -172,8 +236,8 @@ func GetLowTemp(ID string, db *storm.DB) (sensornet.SensorData, error) {
 	return sensorData, nil
 }
 
-// GetHighSignal ...
-func GetHighSignal(ID string, db *storm.DB) (sensornet.SensorData, error) {
+// getHighSignal ...
+func getHighSignal(ID string, db *storm.DB) (sensornet.SensorData, error) {
 	sensorData, err := getHighest("Signal", ID, db)
 	if err != nil {
 		return sensorData, err
@@ -182,25 +246,14 @@ func GetHighSignal(ID string, db *storm.DB) (sensornet.SensorData, error) {
 	return sensorData, nil
 }
 
-// GetLowSignal ...
-func GetLowSignal(ID string, db *storm.DB) (sensornet.SensorData, error) {
+// getLowSignal ...
+func getLowSignal(ID string, db *storm.DB) (sensornet.SensorData, error) {
 	sensorData, err := getLowest("Signal", ID, db)
 	if err != nil {
 		return sensorData, err
 	}
 
 	return sensorData, nil
-}
-
-// GetNumReadings ...
-func GetNumReadings(ID string, db *storm.DB) (int, error) {
-	var sensor sensornet.Sensor
-	err := db.One("ID", ID, &sensor)
-	if err != nil {
-		return 0, err
-	}
-
-	return sensor.NumReadings, nil
 }
 
 // getNumReads ...
@@ -212,35 +265,6 @@ func getNumReads(ID string, db *storm.DB) (int, error) {
 	}
 
 	return len(sensorData), nil
-}
-
-// UpdateNumReadings ...
-func UpdateNumReadings(db *storm.DB) error {
-	sensors, err := GetSensors(db)
-	if err != nil {
-		return err
-	}
-
-	for _, v := range sensors {
-		updateNumReads(v.ID, db)
-	}
-
-	return nil
-}
-
-// updateNumReads ...
-func updateNumReads(ID string, db *storm.DB) error {
-	numReadings, err := getNumReads(ID, db)
-	if err != nil {
-		return err
-	}
-
-	err = updateSensorNumReadings(&sensornet.Sensor{ID: ID, NumReadings: numReadings}, db)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func getLowest(sort, ID string, db *storm.DB) (sensornet.SensorData, error) {
@@ -265,7 +289,7 @@ func getHighest(sort, ID string, db *storm.DB) (sensornet.SensorData, error) {
 
 // CleanDB ...
 func CleanDB(max int, db *storm.DB) error {
-	sensors, err := GetSensors(db)
+	sensors, err := getSensors(db)
 	if err != nil {
 		return err
 	}

@@ -57,32 +57,25 @@ func (d *Data) UpdateSensorDataJSON(c *gin.Context) {
 	now := time.Now().UTC()
 	sensorData.LastUpdate = now.Format(time.ANSIC)
 
-	tempSensor, err := storage.GetSensor(sensorData.ID, d.Data.DB)
-	if err != nil {
-		if err == storm.ErrNotFound {
-			d.Data.DbugLog.Printf("new sensor found")
-
-		} else {
-			d.Data.ErrLog.Printf("%s", err.Error())
-			c.AbortWithStatus(http.StatusInternalServerError)
-			return
+	retrievedSensor := &sensornet.Sensor{}
+	for _, v := range d.Data.CachedSensors {
+		if v.ID == sensorData.ID {
+			retrievedSensor = v
 		}
 	}
 
-	if tempSensor.Location == "" {
-		sensorData.Location = "NEW"
-	} else {
-		sensorData.Location = tempSensor.Location
+	if retrievedSensor.Location == "" {
+		retrievedSensor.Location = "NEW"
 	}
 
-	d.Data.DbugLog.Printf("sensor id: %s, location: %s, uptime: %s",
+	sensorData.Location = retrievedSensor.Location
+	d.Data.DebugLog.Printf("sensor id: %s, uptime: %s",
 		sensorData.ID,
-		sensorData.Location,
 		sensorData.Uptime,
 	)
-	d.Data.DbugLog.Printf("ssid: %s, signal: %d, ip: %s", sensorData.SSID, sensorData.Signal, sensorData.IP)
-	d.Data.DbugLog.Printf("temp(c): %.2f, temp(f): %.2f", sensorData.TempC, sensorData.TempF)
-	d.Data.DbugLog.Printf("last update: %s", sensorData.LastUpdate)
+	d.Data.DebugLog.Printf("ssid: %s, signal: %d, ip: %s", sensorData.SSID, sensorData.Signal, sensorData.IP)
+	d.Data.DebugLog.Printf("temp(c): %.2f, temp(f): %.2f", sensorData.TempC, sensorData.TempF)
+	d.Data.DebugLog.Printf("last update: %s", sensorData.LastUpdate)
 
 	err = storage.StoreSensorData(&sensorData, d.Data.DB)
 	if err != nil {
@@ -110,7 +103,7 @@ func (d *Data) UpdateSensorLocationJSON(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	d.Data.DbugLog.Printf("sensor id: %s, location: %s", sensor.ID, sensor.Location)
+	d.Data.DebugLog.Printf("sensor id: %s, location: %s", sensor.ID, sensor.Location)
 
 	err = storage.UpdateSensorLocation(&sensor, d.Data.DB)
 	if err != nil {
@@ -125,13 +118,7 @@ func (d *Data) UpdateSensorLocationJSON(c *gin.Context) {
 func (d *Data) GetSensorsJSON(c *gin.Context) {
 	var IDs []string
 
-	sensors, err := storage.GetSensors(d.Data.DB)
-	if err != nil {
-		d.Data.ErrLog.Printf("%s", err.Error())
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	for _, v := range sensors {
+	for _, v := range d.Data.CachedSensors {
 		IDs = append(IDs, v.ID)
 	}
 	c.JSON(http.StatusOK, IDs)
@@ -163,60 +150,65 @@ func (d *Data) GetSensorDataJSON(c *gin.Context) {
 
 // GetHighTempJSON ...
 func (d *Data) GetHighTempJSON(c *gin.Context) {
-	highTempData, err := storage.GetHighTemp(c.Param("sensorid"), d.Data.DB)
-	if err != nil {
-		d.Data.ErrLog.Printf("getting high temp: %s", err.Error())
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
+
+	retrievedSensor := &sensornet.Sensor{}
+	for _, v := range d.Data.CachedSensors {
+		if v.ID == c.Param("sensorid") {
+			retrievedSensor = v
+		}
 	}
 
-	c.JSON(http.StatusOK, highTempData)
+	c.JSON(http.StatusOK, retrievedSensor.HighTemp)
 }
 
 // GetLowTempJSON ...
 func (d *Data) GetLowTempJSON(c *gin.Context) {
-	lowTempData, err := storage.GetLowTemp(c.Param("sensorid"), d.Data.DB)
-	if err != nil {
-		d.Data.ErrLog.Printf("getting low temp: %s", err.Error())
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
+
+	retrievedSensor := &sensornet.Sensor{}
+	for _, v := range d.Data.CachedSensors {
+		if v.ID == c.Param("sensorid") {
+			retrievedSensor = v
+		}
 	}
 
-	c.JSON(http.StatusOK, lowTempData)
+	c.JSON(http.StatusOK, retrievedSensor.LowTemp)
 }
 
 // GetHighSigJSON ...
 func (d *Data) GetHighSigJSON(c *gin.Context) {
-	highSigData, err := storage.GetHighSignal(c.Param("sensorid"), d.Data.DB)
-	if err != nil {
-		d.Data.ErrLog.Printf("getting high signal: %s", err.Error())
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
+
+	retrievedSensor := &sensornet.Sensor{}
+	for _, v := range d.Data.CachedSensors {
+		if v.ID == c.Param("sensorid") {
+			retrievedSensor = v
+		}
 	}
 
-	c.JSON(http.StatusOK, highSigData)
+	c.JSON(http.StatusOK, retrievedSensor.HighSignal)
 }
 
 // GetLowSigJSON ...
 func (d *Data) GetLowSigJSON(c *gin.Context) {
-	highSigData, err := storage.GetLowSignal(c.Param("sensorid"), d.Data.DB)
-	if err != nil {
-		d.Data.ErrLog.Printf("getting low signal: %s", err.Error())
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
+
+	retrievedSensor := &sensornet.Sensor{}
+	for _, v := range d.Data.CachedSensors {
+		if v.ID == c.Param("sensorid") {
+			retrievedSensor = v
+		}
 	}
 
-	c.JSON(http.StatusOK, highSigData)
+	c.JSON(http.StatusOK, retrievedSensor.LowSignal)
 }
 
 // GetNumReadingsJSON ...
 func (d *Data) GetNumReadingsJSON(c *gin.Context) {
-	numReadings, err := storage.GetNumReadings(c.Param("sensorid"), d.Data.DB)
-	if err != nil {
-		d.Data.ErrLog.Printf("getting num readings: %s", err.Error())
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
+
+	retrievedSensor := &sensornet.Sensor{}
+	for _, v := range d.Data.CachedSensors {
+		if v.ID == c.Param("sensorid") {
+			retrievedSensor = v
+		}
 	}
 
-	c.JSON(http.StatusOK, numReadings)
+	c.JSON(http.StatusOK, retrievedSensor.NumReadings)
 }

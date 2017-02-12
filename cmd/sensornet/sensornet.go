@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spazbite187/sensornet"
 	"github.com/spazbite187/sensornet/app"
 	"github.com/spazbite187/sensornet/handlers"
 	"github.com/spazbite187/sensornet/storage"
@@ -15,10 +16,10 @@ import (
 )
 
 const (
-	version        = "1.0.0"
-	dbFilename     = "sensornet.db"
-	maxNumReadings = 10080 // 7 days worth if sensors measure every minute
-	bckgrdInterval = 30    // seconds
+	version         = "1.1.0-DEV"
+	dbFilename      = "sensornet.db"
+	maxNumReadings  = 10080 // 7 days worth if sensors measure every minute
+	bckgrndInterval = 60    // seconds
 )
 
 var (
@@ -29,10 +30,11 @@ var (
 
 func init() {
 	appData = &app.Data{
-		Version: version,
-		Log:     log.New(os.Stdout, "sensornet ", log.LstdFlags),
-		ErrLog:  log.New(os.Stderr, "sensornet - error ", log.LstdFlags|log.Lshortfile),
-		DbugLog: log.New(ioutil.Discard, "", 0),
+		Version:       version,
+		Log:           log.New(os.Stdout, "[SensorNet] ", log.LstdFlags),
+		ErrLog:        log.New(os.Stderr, "[SensorNet-error] ", log.LstdFlags|log.Llongfile),
+		DebugLog:      log.New(ioutil.Discard, "", 0),
+		CachedSensors: []*sensornet.Sensor{},
 	}
 }
 
@@ -41,16 +43,14 @@ func main() {
 	gLog := appData.Log
 	eLog := appData.ErrLog
 
-	gLog.Println("version", version)
-
 	mode := strings.ToLower(os.Getenv("MODE"))
 	if mode == "debug" {
-		appData.DbugLog = log.New(os.Stdout, "sensornet - debug ", log.LstdFlags|log.Lshortfile)
-		appData.DbugLog.Printf("----- DEBUG MODE -----")
+		appData.DebugLog = log.New(os.Stdout, "[SensorNet-debug] ", log.LstdFlags|log.Lshortfile)
+		gLog.Printf("----- DEBUG MODE -----")
 	} else {
-		gin.SetMode(gin.ReleaseMode) // set gin to release mode
+		gin.SetMode(gin.ReleaseMode)
 	}
-	dLog := appData.DbugLog // alias for debug logger
+	dLog := appData.DebugLog // alias for debug logger
 
 	port := strings.ToLower(os.Getenv("PORT"))
 	if port == "" {
@@ -85,26 +85,32 @@ func main() {
 
 	// load html templates
 	router.LoadHTMLGlob(appData.Assets + "/templates/*")
-
-	// Initialize the routes
-	initRoutes()
-
-	// display run data
-	gLog.Printf("version %s starting service on port %s", appData.Version, port)
 	dLog.Printf("assets dir %s", appData.Assets)
 	dLog.Printf("app dir %s", appData.DIR)
 
-	// start background service for updating sensor readings
+	// start background services
+	bckgrndServices(appData)
+
+	// start service
+	initRoutes()
+	gLog.Printf("running web service on port %s", port)
+	if err := router.Run(); err != nil {
+		eLog.Fatal(err)
+	}
+}
+
+func bckgrndServices(appData *app.Data) {
+	// start background service for updating sensor data
 	go func() {
 		// loop
 		for {
-			time.Sleep(bckgrdInterval / 2 * time.Second) // udpate half the bckgrdInterval
-			dLog.Println("updating sensor number of readings...")
-			err := storage.UpdateNumReadings(db)
+			appData.DebugLog.Println("updating the sensor models...")
+			err := storage.UpdateSensors(appData)
 			if err != nil {
-				eLog.Printf("updating sensors - %s", err.Error())
+				appData.ErrLog.Printf("updating sensors - %s", err.Error())
 			}
-			dLog.Println("done updating sensor number of readings.")
+			appData.DebugLog.Println("completed updating the sensor models")
+			time.Sleep(bckgrndInterval * time.Second)
 		}
 	}()
 
@@ -112,19 +118,14 @@ func main() {
 	go func() {
 		// loop
 		for {
-			time.Sleep(bckgrdInterval * time.Second) // interval
-			dLog.Printf("removing sensor data over max  num (%d)...", maxNumReadings)
-			err = storage.CleanDB(maxNumReadings, db)
+			time.Sleep(bckgrndInterval * time.Second)
+			appData.DebugLog.Printf("removing sensor data over the max number (%d)...", maxNumReadings)
+			err := storage.CleanDB(maxNumReadings, appData.DB)
 			if err != nil {
-				eLog.Printf("cleaning up db - %s", err.Error())
+				appData.ErrLog.Printf("cleaning up db - %s", err.Error())
 			}
-			dLog.Println("done cleaning up db.")
-
+			appData.DebugLog.Printf("completed removing sensor data over the max number (%d)", maxNumReadings)
 		}
 	}()
 
-	// start service
-	if err := router.Run(); err != nil {
-		eLog.Fatal(err)
-	}
 }
