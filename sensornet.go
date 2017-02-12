@@ -7,7 +7,7 @@ import (
 
 const (
 	// Version defines the current version number (major.minor.patch).
-	Version = "1.1.0-DEV"
+	Version = "1.1.0"
 	// DBFilename defines the static name for the sensornet db file.
 	DBFilename = "sensornet.db"
 	// MaxNumReadings to keep in DB. Storing a reading every 60 seconds is 1440 readings
