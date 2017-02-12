@@ -2,7 +2,6 @@ package sensornet_test
 
 import (
 	"testing"
-
 	"time"
 
 	"github.com/spazbite187/sensornet"
@@ -34,6 +33,7 @@ type toFixedTestPair struct {
 // test global vars
 var calcTimeSinceTests = []calcTimeSinceTestPair{
 	{"Sun Feb 12 18:48:54 2017", "42s"},
+	{"Sun Feb 12 18:48:54 2016", "1m45s"},
 	{"Not a vaid time", "Me too"},
 }
 
