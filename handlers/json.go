@@ -126,7 +126,7 @@ func (d *Data) GetSensorsJSON(c *gin.Context) {
 
 // GetSensorDataJSON ...
 func (d *Data) GetSensorDataJSON(c *gin.Context) {
-	sensorData, err := storage.GetSensorData(c.Param("sensorid"), d.Data.DB)
+	sensorData, err := storage.GetLatestSensorData(c.Param("sensorid"), d.Data.DB)
 	if err != nil {
 		if err == storm.ErrNotFound {
 			c.AbortWithStatus(http.StatusNotFound)

@@ -40,7 +40,7 @@ func UpdateSensors(appData *app.Data) error {
 
 	// update sensor models
 	for i, v := range sensors {
-		sensor, err := GetSensorData(v.ID, appData.DB)
+		sensor, err := GetLatestSensorData(v.ID, appData.DB)
 		if err != nil {
 			return err
 		}
@@ -146,8 +146,8 @@ func StoreSensorData(data *sensornet.SensorData, db *storm.DB) error {
 	return nil
 }
 
-// GetSensorData ...
-func GetSensorData(ID string, db *storm.DB) (sensornet.SensorData, error) {
+// GetLatestSensorData ...
+func GetLatestSensorData(ID string, db *storm.DB) (sensornet.SensorData, error) {
 	var sensorData []sensornet.SensorData
 	err := db.Find("ID", ID, &sensorData, storm.Limit(1), storm.Reverse())
 	if err != nil {
@@ -293,10 +293,16 @@ func CleanDB(max int, db *storm.DB) error {
 	if err != nil {
 		return err
 	}
-	// get number of readings per sensor
+
 	for _, sensor := range sensors {
-		if sensor.NumReadings > max {
-			diff := sensor.NumReadings - max
+		// get number of readings per sensor
+		numReads, err := getNumReads(sensor.ID, db)
+		if err != nil {
+			return err
+		}
+
+		if numReads > max {
+			diff := numReads - max
 			// remove sensor readings
 			var sensorsData []sensornet.SensorData
 			err := db.Find("ID", sensor.ID, &sensorsData, storm.Limit(diff))
@@ -304,8 +310,8 @@ func CleanDB(max int, db *storm.DB) error {
 				return err
 			}
 
-			for _, data := range sensorsData {
-				err := db.DeleteStruct(&data)
+			for i := range sensorsData {
+				err := db.DeleteStruct(&sensorsData[i])
 				if err != nil {
 					return err
 				}
